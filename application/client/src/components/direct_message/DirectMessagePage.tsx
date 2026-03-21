@@ -55,8 +55,8 @@ export const DirectMessagePage = ({
     [onTyping],
   );
 
-  const submitMessage = useCallback(async () => {
-    const body = text.trim();
+  const submitMessage = useCallback(async (rawText?: string) => {
+    const body = (rawText ?? text).trim();
     if (body.length === 0 || isSubmitting) {
       return;
     }
@@ -72,16 +72,16 @@ export const DirectMessagePage = ({
   const handleSubmit = useCallback(
     (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
-      void submitMessage();
+      void submitMessage(text);
     },
-    [submitMessage],
+    [submitMessage, text],
   );
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent<HTMLTextAreaElement>) => {
       if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
         event.preventDefault();
-        void submitMessage();
+        void submitMessage(event.currentTarget.value);
       }
     },
     [submitMessage],
