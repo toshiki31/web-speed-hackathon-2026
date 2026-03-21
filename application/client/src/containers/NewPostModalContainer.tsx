@@ -1,3 +1,4 @@
+import { load, ImageIFD } from "piexifjs";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 
@@ -12,10 +13,30 @@ interface SubmitParams {
   text: string;
 }
 
+async function extractAlt(file: File): Promise<string> {
+  try {
+    const buffer = await file.arrayBuffer();
+    const binary = Array.from(new Uint8Array(buffer))
+      .map((b) => String.fromCharCode(b))
+      .join("");
+    const exif = load(binary);
+    const raw = exif?.["0th"]?.[ImageIFD.ImageDescription];
+    return raw != null ? new TextDecoder().decode(Buffer.from(raw, "binary")) : "";
+  } catch {
+    return "";
+  }
+}
+
 async function sendNewPost({ images, movie, sound, text }: SubmitParams): Promise<Models.Post> {
   const payload = {
     images: images
-      ? await Promise.all(images.map((image) => sendFile("/api/v1/images", image)))
+      ? await Promise.all(
+          images.map(async (image) => {
+            const { id } = await sendFile<{ id: string }>("/api/v1/images", image);
+            const alt = await extractAlt(image);
+            return { id, alt };
+          }),
+        )
       : [],
     movie: movie ? await sendFile("/api/v1/movies", movie) : undefined,
     sound: sound ? await sendFile("/api/v1/sounds", sound) : undefined,

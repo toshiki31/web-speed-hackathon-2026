@@ -1,25 +1,26 @@
 import { load, ImageIFD } from "piexifjs";
-import { MouseEvent, useCallback, useEffect, useId, useState } from "react";
+import { MouseEvent, useCallback, useId, useState } from "react";
 
 import { Button } from "@web-speed-hackathon-2026/client/src/components/foundation/Button";
 import { Modal } from "@web-speed-hackathon-2026/client/src/components/modal/Modal";
 import { fetchBinary } from "@web-speed-hackathon-2026/client/src/utils/fetchers";
 
 interface Props {
+  alt: string;
   src: string;
 }
 
 /**
  * アスペクト比を維持したまま、要素のコンテンツボックス全体を埋めるように画像を拡大縮小します
  */
-export const CoveredImage = ({ src }: Props) => {
+export const CoveredImage = ({ alt: initialAlt, src }: Props) => {
   const dialogId = useId();
   // ダイアログの背景をクリックしたときに投稿詳細ページに遷移しないようにする
   const handleDialogClick = useCallback((ev: MouseEvent<HTMLDialogElement>) => {
     ev.stopPropagation();
   }, []);
 
-  const [alt, setAlt] = useState("");
+  const [alt, setAlt] = useState(initialAlt);
 
   const handleShowAlt = useCallback(async () => {
     const data = await fetchBinary(src);
@@ -28,10 +29,6 @@ export const CoveredImage = ({ src }: Props) => {
     const altText = raw != null ? new TextDecoder().decode(Buffer.from(raw, "binary")) : "";
     setAlt(altText);
   }, [src]);
-
-  useEffect(() => {
-    void handleShowAlt();
-  }, [handleShowAlt]);
 
   return (
     <div className="relative h-full w-full overflow-hidden">
