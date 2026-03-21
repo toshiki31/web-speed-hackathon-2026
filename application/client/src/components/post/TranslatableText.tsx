@@ -21,7 +21,7 @@ export const TranslatableText = ({ text }: Props) => {
             const { createTranslator } = await import(
               "@web-speed-hackathon-2026/client/src/utils/create_translator"
             );
-            using translator = await createTranslator({
+            const translator = await createTranslator({
               sourceLanguage: "ja",
               targetLanguage: "en",
             });
