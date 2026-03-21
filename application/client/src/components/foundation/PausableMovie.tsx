@@ -37,10 +37,8 @@ export const PausableMovie = ({ src }: Props) => {
   );
 
   const handleImgLoad = useCallback<ReactEventHandler<HTMLImageElement>>(() => {
-    if (prefersReducedMotion) {
-      drawToCanvas();
-    }
-  }, [prefersReducedMotion, drawToCanvas]);
+    drawToCanvas();
+  }, [drawToCanvas]);
 
   const handleClick = useCallback(() => {
     setIsPlaying((prev) => {
@@ -59,16 +57,16 @@ export const PausableMovie = ({ src }: Props) => {
         onClick={handleClick}
         type="button"
       >
+        <canvas
+          ref={canvasCallbackRef}
+          className="w-full"
+        />
         <img
           ref={imgRef}
           alt=""
-          className={classNames("w-full", { hidden: !isPlaying })}
+          className={classNames("absolute inset-0 w-full h-full", { hidden: !isPlaying })}
           onLoad={handleImgLoad}
           src={src}
-        />
-        <canvas
-          ref={canvasCallbackRef}
-          className={classNames("w-full", { hidden: isPlaying })}
         />
         <div
           className={classNames(
